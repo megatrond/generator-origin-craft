@@ -1,0 +1,46 @@
+{
+    "name": "<%= _.slugify(appName) %>",
+    "version": "0.1.0",
+    "private": true,
+    "devDependencies": {
+        "browserify": "^6.2.0",
+        "browserify-shim": "^3.8.0",
+        "grunt": "^0.4.5",
+        "grunt-browserify": "^3.2.0",
+        "grunt-contrib-copy": "^0.7.0",
+        "grunt-contrib-cssmin": "^0.10.0",
+        "grunt-contrib-imagemin": "^0.9.1",
+        "grunt-contrib-jshint": "^0.10.0",
+        "grunt-contrib-sass": "^0.8.1",
+        "grunt-contrib-uglify": "^0.6.0",
+        "grunt-contrib-watch": "^0.6.1",
+        "grunt-newer": "^0.8.0",
+        "load-grunt-tasks": "^1.0.0",
+        "grunt-string-replace": "^1.0.0",
+        "grunt-bushcaster": "^0.1.0",
+        "grunt-contrib-compress": "^0.12.0"
+    },
+    "dependencies": {
+        "lodash": "^2.4.1"
+    },
+    "browserify": {
+        "transform": [
+        "browserify-shim"
+        ]
+    },
+    "browserify-shim": {
+        "jquery": "global:$"
+    },
+    "originBuild": {
+        "src": {
+            "js": "src/js",
+            "scss": "src/scss",
+            "img": "src/img"
+        },
+        "dest": {
+            "js": "public/static/js",
+            "css": "public/static/css",
+            "img": "public/static/img"
+        }
+    }
+}

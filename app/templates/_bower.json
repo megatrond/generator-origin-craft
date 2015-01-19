@@ -1,0 +1,15 @@
+{
+  "name": "package",
+  "version": "0.1.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "foundation": "^5.0.0"
+  }
+}
+

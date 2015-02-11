@@ -105,7 +105,7 @@ var OriginCraftGenerator = yeoman.generators.Base.extend({
             this.template('_package.json', 'package.json', context);
 
             // copy main style and javascript files
-            this.src.copy('scss/_style.scss', 'src/scss/style.scss');
+            this.src.copy('scss/_styles.scss', 'src/scss/styles.scss');
             this.src.copy('js/_main.js', 'src/js/main.js');
 
             var templatePath = 'craft/templates/common';

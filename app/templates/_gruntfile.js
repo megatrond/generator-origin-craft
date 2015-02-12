@@ -13,7 +13,8 @@ module.exports = function(grunt) {
         sass: {
             dev: {
                 options: {
-                    style: 'expanded'
+                    style: 'expanded',
+                    precision: 10
                 },
                 files: [
                     {
@@ -28,7 +29,8 @@ module.exports = function(grunt) {
             prod: {
                 options: {
                     style: 'compressed',
-                    sourcemap: 'none'
+                    sourcemap: 'none',
+                    precision: 10
                 },
                 files: [{
                     expand: true,

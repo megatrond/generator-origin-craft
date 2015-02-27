@@ -197,9 +197,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('cachebust', ['bushcaster:prod', 'string-replace:prod']);
-
-
     grunt.registerTask('default', ['copy:dev', 'sass:dev', 'imagemin:dev', 'browserify:dev', 'watch']);
 
     grunt.registerTask('release', ['copy:dev', 'sass:prod', 'imagemin:dev', 'browserify:dev', 'uglify:prod','copy:prod', 'bushcaster:prod', 'string-replace:prod', 'clean:prod', 'compress:release', 'clean:postprod']);

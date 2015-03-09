@@ -1,6 +1,6 @@
 {
   "name": "generator-origin-craft",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Yeoman generator for CraftCMS, Grunt, Browserify, Zurb Foundation and Babel",
   "license": "MIT",
   "main": "app/index.js",
@@ -10,7 +10,7 @@
   },
   "bugs": {
     "url": "https://github.com/megatrond/generator-origin-craft/issues"
-    },
+  },
   "author": {
     "name": "Trond Sørås",
     "email": "trond@origin.no",

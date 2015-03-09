@@ -6,7 +6,8 @@
   "main": "app/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/megatrond/generator-origin-craft",
+    "url": "https://github.com/megatrond/generator-origin-craft"
+  },
   "author": {
     "name": "Trond Sørås",
     "email": "trond@origin.no",
@@ -22,11 +23,13 @@
     "app"
   ],
   "keywords": [
-    "yeoman-generator",
+    "browserify",
     "craftcms",
+    "foundation",
+    "generator",
     "grunt",
-    "foundation"
-    "browserify"
+    "yeoman",
+    "yeoman-generator"
   ],
   "dependencies": {
     "yeoman-generator": "^0.17.0",

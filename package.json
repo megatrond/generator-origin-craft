@@ -22,7 +22,11 @@
     "app"
   ],
   "keywords": [
-    "yeoman-generator"
+    "yeoman-generator",
+    "craftcms",
+    "grunt",
+    "foundation"
+    "browserify"
   ],
   "dependencies": {
     "yeoman-generator": "^0.17.0",

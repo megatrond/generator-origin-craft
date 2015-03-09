@@ -1,6 +1,6 @@
 {
   "name": "generator-origin-craft",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Yeoman generator",
   "license": "MIT",
   "main": "app/index.js",
@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/megatrond/generator-origin-craft"
   },
+  "bugs": {
+    "url": "https://github.com/megatrond/generator-origin-craft/issues"
+    },
   "author": {
     "name": "Trond Sørås",
     "email": "trond@origin.no",

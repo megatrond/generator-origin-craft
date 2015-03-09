@@ -1,12 +1,13 @@
 {
     "name": "<%= _.slugify(appName) %>",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "private": true,
     "devDependencies": {
+        "babelify": "^5.0.4",
         "browserify": "^9.0.3",
         "browserify-shim": "^3.8.3",
         "grunt": "^0.4.5",
-        "grunt-browserify": "^3.4.0",
+        "grunt-browserify": "^3.5.0",
         "grunt-bushcaster": "^0.1.0",
         "grunt-contrib-clean": "^0.6.0",
         "grunt-contrib-compress": "^0.13.0",
@@ -22,7 +23,7 @@
         "load-grunt-tasks": "^3.1.0"
     },
     "dependencies": {
-        "lodash": "^3.3.1"
+        "lodash": "^3.5.0"
     },
     "browserify": {
         "transform": [

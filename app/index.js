@@ -32,10 +32,6 @@ var OriginCraftGenerator = yeoman.generators.Base.extend({
         }.bind(this));
     },
     downloadCraft: function() {
-        // make a directory for the app
-        this.dest.mkdir(this.appName);
-        // change working directory to the app directory
-        process.chdir(this.appName);
         var done = this.async();
         // download and extract Craft (URL and version specified above)
         this.extract(craftUrl, '.', function(error) {

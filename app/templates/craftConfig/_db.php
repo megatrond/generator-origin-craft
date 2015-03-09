@@ -17,7 +17,7 @@ $dbConfig = array(
         'database' => DB_NAME,
         'tablePrefix' => 'craft',
     ),
-    'dev.' => array(
+    '.staging.' => array(
         'server' => 'localhost',
         'user' => 'root',
         'password' => '',

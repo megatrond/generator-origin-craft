@@ -45,10 +45,10 @@ return array(
     // ------------------------------------------------------------
     // Environment: Staging
     // ------------------------------------------------------------
-    'dev.' => array(
+    '.staging.' => array(
         'environmentVariables' => array(
             'basePath' => BASEPATH,
-            'siteUrl'  => SITE_URL . APPNAME . '/'
+            'siteUrl'  => SITE_URL
         ),
         'allowAutoUpdates' => false
     ),
@@ -65,7 +65,8 @@ return array(
 
         // Route ALL of the emails that Craft
         // sends to a single email address.
-        'testToEmailAddress'  => 'trond@origin.no',
+        // Change this to your own address, obviously
+        'testToEmailAddress'  => 'xxx@yyy.com',
         // only allow auto updates when running locally
         'allowAutoUpdates' => true,
         // misc settings useful for development

@@ -14,7 +14,7 @@ $port = $_SERVER['SERVER_PORT'] != 80 ? ':'.$_SERVER['SERVER_PORT'] : '';
 define('SITE_URL',    URI_SCHEME . $_SERVER['SERVER_NAME'] . $port . '/');
 
 // The site basepath
-define('BASEPATH', 	  realpath(dirname(__FILE__) . '/../') . '/');
+define('BASEPATH', 	  realpath(dirname(__FILE__) . '/../../public') . '/');
 
 $appPath = explode('/', realpath(dirname(__FILE__) . '/../../'));
 

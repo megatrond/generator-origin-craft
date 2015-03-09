@@ -123,32 +123,12 @@ var OriginCraftGenerator = yeoman.generators.Base.extend({
         }
     },
     installdeps: function() {
-        // this.bowerInstall();
-        // this.npmInstall([
-        //     'browserify',
-        //     'browserify-shim',
-        //     'grunt',
-        //     'grunt-browserify',
-        //     'grunt-contrib-copy',
-        //     'grunt-contrib-cssmin',
-        //     'grunt-contrib-imagemin',
-        //     'grunt-contrib-jshint',
-        //     'grunt-contrib-sass',
-        //     'grunt-contrib-uglify',
-        //     'grunt-contrib-watch',
-        //     'grunt-newer',
-        //     'load-grunt-tasks'
-        //     ], {'saveDev': true});
-
-        // this.npmInstall(['lodash'], {'save':true}, done);
         this.installDependencies();
     },
     end: function () {
-        this.log('\nYou should delete all html files under \'craft/templates\' and use the .twig files instead.\n');
         this.log('Remember to create a local database for the project.\nThe generated config files expects a database named \''+this.appName+'\', running on localhost\n');
         this.log('Craft expects you to have a virtualhost with \'local.\' in the name when developing.\n');
         this.log('Directory \'node_modules\' should be ignored in version control.\n')
-        this.log('Remeber to run \'npm install\' and \'bower install\' before starting development')
     }
 });
 

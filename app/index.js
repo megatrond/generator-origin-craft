@@ -107,6 +107,8 @@ var OriginCraftGenerator = yeoman.generators.Base.extend({
             var templatePath = 'craft/templates/common';
             this.dest.mkdir('craft/templates');
             this.dest.mkdir(templatePath);
+            this.dest.mkdir('craft/storage');
+            this.dest.mkdir('craft/plugins');
             this.src.copy('html/_doc_head.twig', templatePath+'/doc_head.twig');
             this.src.copy('html/_js.twig', templatePath+'/js.twig');
             this.src.copy('html/_page_footer.twig', templatePath+'/page_footer.twig');

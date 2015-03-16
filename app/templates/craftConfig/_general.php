@@ -6,7 +6,12 @@
  * All of your system's general configuration settings go in here.
  * You can see a list of the default settings in craft/app/etc/config/defaults/general.php
  */
-// Ensure our urls have the right scheme
+// Ensure our urls have the right scheme. 
+// When ProxyPassing we depend on the X-Forwarded-Proto
+// header beeing set. If it is, we 'activate' https for this app
+if(isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'){
+    $_SERVER['HTTPS']='on';
+}
 define('URI_SCHEME',  ( isset($_SERVER['HTTPS'] ) ) ? "https://" : "http://" );
 // The site url
 // Needs to account for port numbers when developing

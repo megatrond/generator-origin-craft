@@ -41,6 +41,18 @@ module.exports = function(grunt) {
                 }]
             }
         },
+        autoprefixer: {
+            options: {
+                browsers: [
+                    'last 2 versions',
+                    'ie 8',
+                    'ie 9'
+                ]
+            },
+            prod: {
+                src: dests.css + '/styles.css'
+            }
+        },
         imagemin: {
             dev: {
                 options: {
@@ -172,7 +184,7 @@ module.exports = function(grunt) {
             },
             scss: {
                 files: srcs.scss+'/**/*.scss',
-                tasks: ['sass:dev']
+                tasks: ['sass:dev', 'autoprefixer:prod']
             },
             twig: {
                 files: 'craft/templates/**/*.twig',
@@ -197,7 +209,7 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['copy:dev', 'sass:dev', 'imagemin:dev', 'browserify:dev', 'watch']);
+    grunt.registerTask('default', ['copy:dev', 'sass:dev', 'autoprefixer:prod', 'imagemin:dev', 'browserify:dev', 'watch']);
 
-    grunt.registerTask('release', ['copy:dev', 'sass:prod', 'imagemin:dev', 'browserify:dev', 'uglify:prod','copy:prod', 'bushcaster:prod', 'string-replace:prod', 'clean:prod', 'compress:release', 'clean:postprod']);
+    grunt.registerTask('release', ['copy:dev', 'sass:prod', 'autoprefixer:prod', 'imagemin:dev', 'browserify:dev', 'uglify:prod','copy:prod', 'bushcaster:prod', 'string-replace:prod', 'clean:prod', 'compress:release', 'clean:postprod']);
 };

@@ -7,11 +7,14 @@
     <link rel="home" href="{{ siteUrl }}" />
     <link rel="stylesheet" href="{{ siteUrl }}static/css/styles.css" />
 
-    <meta property="og:title" content="" />
+    <meta property="og:title" content="{% if title is defined %}{{ title }} - {% endif %}{{ siteName }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="" />
-    <meta property="og:image" content="" />
-    <meta property="og:description" content="" />
+    <meta property="og:image" content="{% if ogImage is defined %}{{ ogImage }}{% else %}{{ siteUrl }}static/img/logo.png{% endif %}" />
+    
+    {% if description is defined %}
+        <meta property="og:description" content="{{ description }}" />
+        <meta name="description" content="{{ description }}" />
+    {% endif %}
 
-    <meta name="description" content="" />
 </head>

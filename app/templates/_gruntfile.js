@@ -36,7 +36,7 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: srcs.scss,
                     src: ['styles.scss'],
-                    dest: dests.css,
+                    dest: 'release/latest/public/static/css/',
                     ext: '.css'
                 }]
             }
@@ -70,6 +70,10 @@ module.exports = function(grunt) {
             dev: {
                 src: srcs.js+'/main.js',
                 dest: dests.js+'/bundle.js'
+            },
+            prod: {
+                src: srcs.js+'/main.js',
+                dest: 'release/latest/public/static/js/bundle.js'
             }
         },
         uglify: {
@@ -80,19 +84,19 @@ module.exports = function(grunt) {
             },
             prod: {
                 files: {
-                    'public/static/js/bundle.js': ['public/static/js/bundle.js']
+                    'release/latest/public/static/js/bundle.js': ['public/static/js/bundle.js']
                 }
             }
         },
         cssmin: {
             prod: {
                 files: {
-                    'public/static/css/styles.min.css': ['public/static/css/styles.css']
+                    'release/latest/public/static/css/styles.min.css': ['public/static/css/styles.css']
                 }
             }
         },
         copy: {
-            dev: {
+            fonts: {
                 files: [
                     {
                         expand: true,
@@ -209,7 +213,19 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['copy:dev', 'sass:dev', 'autoprefixer:prod', 'imagemin:dev', 'browserify:dev', 'watch']);
+    grunt.registerTask('default', ['copy:fonts', 'sass:dev', 'autoprefixer:prod', 'imagemin:dev', 'browserify:dev', 'watch']);
 
-    grunt.registerTask('release', ['copy:dev', 'sass:prod', 'autoprefixer:prod', 'imagemin:dev', 'browserify:dev', 'uglify:prod','copy:prod', 'bushcaster:prod', 'string-replace:prod', 'clean:prod', 'compress:release', 'clean:postprod']);
+    grunt.registerTask('release', [
+        'copy:fonts',
+        'copy:prod',
+        'sass:prod',
+        'autoprefixer:prod',
+        'imagemin:dev',
+        'browserify:prod',
+        'uglify:prod',
+        'bushcaster:prod',
+        'string-replace:prod',
+        'clean:prod',
+        'compress:release'
+    ]);
 };

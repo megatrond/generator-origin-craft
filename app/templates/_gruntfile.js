@@ -173,7 +173,8 @@ module.exports = function(grunt) {
             prod: [
                 'release/latest/public/static/css/styles.css',
                 'release/latest/public/static/css/styles.css.map',
-                'release/latest/public/static/js/bundle.js'
+                'release/latest/public/static/js/bundle.js',
+                'release/latest/craft/storage/runtime' //clean the runtime
             ],
             postprod: [
                 'release/latest'

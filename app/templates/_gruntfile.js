@@ -111,7 +111,7 @@ module.exports = function(grunt) {
                 files: [
                     {
                         expand: true,
-                        src: ['craft/**/*', 'public/static/**/*', 'public/*', '!public/uploads'],
+                        src: ['craft/**/*', 'public/static/**/*', 'public/**/*', '!public/uploads'],
                         dest: 'release/latest',
                         filter: 'isFile'
                     }
@@ -174,7 +174,8 @@ module.exports = function(grunt) {
                 'release/latest/public/static/css/styles.css',
                 'release/latest/public/static/css/styles.css.map',
                 'release/latest/public/static/js/bundle.js',
-                'release/latest/craft/storage/runtime' //clean the runtime
+                'release/latest/craft/storage/runtime', //clean the runtime
+                'release/latest/public/uploads'
             ],
             postprod: [
                 'release/latest'

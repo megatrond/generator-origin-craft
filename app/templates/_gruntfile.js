@@ -194,7 +194,7 @@ module.exports = function(grunt) {
             },
             scss: {
                 files: srcs.scss+'/**/*.scss',
-                tasks: ['sass:dev', 'autoprefixer:prod']
+                tasks: ['sass:dev', 'autoprefixer:dev']
             },
             twig: {
                 files: 'craft/templates/**/*.twig',

@@ -46,11 +46,15 @@ module.exports = function(grunt) {
                 browsers: [
                     'last 2 versions',
                     'ie 8',
-                    'ie 9'
+                    'ie 9',
+                    'iOS 7'
                 ]
             },
-            prod: {
+            dev: {
                 src: dests.css + '/styles.css'
+            },
+            prod: {
+                src: 'release/latest/public/static/css/styles.css'
             }
         },
         imagemin: {
@@ -215,7 +219,7 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('default', ['copy:fonts', 'sass:dev', 'autoprefixer:prod', 'imagemin:dev', 'browserify:dev', 'watch']);
+    grunt.registerTask('default', ['copy:fonts', 'sass:dev', 'autoprefixer:dev', 'imagemin:dev', 'browserify:dev', 'watch']);
 
     grunt.registerTask('release', [
         'copy:fonts',

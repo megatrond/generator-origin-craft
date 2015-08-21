@@ -35,14 +35,12 @@
     "yeoman-generator"
   ],
   "dependencies": {
-    "yeoman-generator": "^0.17.0",
-    "chalk": "^0.5.0",
-    "yosay": "^0.3.0"
+    "chalk": "^1.1.1",
+    "yeoman-generator": "^0.20.2",
+    "yo": "^1.4.7",
+    "yosay": "^1.0.5"
   },
   "devDependencies": {
     "mocha": "*"
-  },
-  "peerDependencies": {
-    "yo": ">=1.0.0"
   }
 }

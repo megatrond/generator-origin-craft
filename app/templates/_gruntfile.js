@@ -1,3 +1,4 @@
+process.env.BROWSERIFYSHIM_DIAGNOSTICS=1;
 module.exports = function(grunt) {
     'use strict';
     require('load-grunt-tasks')(grunt);
@@ -14,6 +15,7 @@ module.exports = function(grunt) {
             dev: {
                 options: {
                     style: 'expanded',
+                    sourcemap: 'inline',
                     precision: 10
                 },
                 files: [
@@ -71,6 +73,9 @@ module.exports = function(grunt) {
             }
         },
         browserify: {
+            options: {
+                watch: true
+            },
             dev: {
                 src: srcs.js+'/main.js',
                 dest: dests.js+'/bundle.js'
@@ -178,13 +183,22 @@ module.exports = function(grunt) {
                 'release/latest/public/static/css/styles.css',
                 'release/latest/public/static/css/styles.css.map',
                 'release/latest/public/static/js/bundle.js',
-                'release/latest/craft/storage/runtime', //clean the runtime
-                'release/latest/public/uploads'
+                'release/latest/public/uploads',
+                'release/latest/craft/storage/runtime' //clean the runtime
             ],
             postprod: [
                 'release/latest'
             ]
         },
+        svn_tag: {
+            release: {
+                options: {
+                    tag: '{%= version %}',
+                    commitMessage: 'Tag for release ({%= version %})'
+                }
+            }
+        },
+        bumpup: 'package.json',
         watch: {
             css: {
                 files: dests.css+'/**/*.css',
@@ -206,10 +220,6 @@ module.exports = function(grunt) {
                 files: srcs.img+'/**/*.{jpg,png.gif}',
                 tasks: ['newer:imagemin:dev']
             },
-            js: {
-                files: srcs.js+'/**/*.js',
-                tasks: ['browserify:dev']
-            },
             jsCompiled: {
                 files: dests.js+'/**/*.js',
                 options: {
@@ -221,7 +231,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', ['copy:fonts', 'sass:dev', 'autoprefixer:dev', 'imagemin:dev', 'browserify:dev', 'watch']);
 
-    grunt.registerTask('release', [
+    // builds projects into tarball
+    grunt.registerTask('build', [
         'copy:fonts',
         'copy:prod',
         'sass:prod',
@@ -232,6 +243,23 @@ module.exports = function(grunt) {
         'bushcaster:prod',
         'string-replace:prod',
         'clean:prod',
-        'compress:release'
+        'compress:release',
+        'clean:postprod'
     ]);
+    // bump patch version, tag into svn
+    grunt.registerTask('release', function(type) {
+        var bumpup = 'bumpup';
+        if (type && type.length > 0) {
+            if (type === 'minor' || type === 'major') {
+                bumpup += ':'+type;
+            } else {
+                grunt.fail.fatal('Cannot bump ' + type + ' version');
+            }
+        }
+        var svn_tag = 'svn_tag';
+        grunt.task.run([
+            bumpup,
+            svn_tag
+        ]);
+    });
 };

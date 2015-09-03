@@ -1,6 +1,6 @@
 # generator-origin-craft 
 
-> [Yeoman](http://yeoman.io) generator for [Craft](http://www.buildwithcraft.com), [Zurb Foundation](http://foundation.zurb.com/), [Grunt](http://gruntjs.com/), [Browserify](http://browserify.org/), [Babel](https://babeljs.io/)
+> [Yeoman](http://yeoman.io) generator for [Craft](http://www.buildwithcraft.com), [Zurb Foundation](http://foundation.zurb.com/), [Gulp](http://gulpjs.com/), [Browserify](http://browserify.org/), [Babel](https://babeljs.io/)
 
 
 ## Included
@@ -22,7 +22,7 @@ To get all the goodness:
 
 This will:
 
-- Download latest version of Craft and untar it
+- Download latest version of Craft and unzip it
 - Drop the default templates into craft/templates
 - Drop some default multi-environment config into craft/config
     - It will assume that you create a local virtualhost with 'local.' in the hostname
@@ -46,8 +46,8 @@ will tarball the entire application (with Craft) so you can move it to the serve
 ###Attention:
 Because of a bug in decompress-unzip (which yo uses) you have to run the following commands in the root of the project (for now)
     
-    find ./craft -type f  -exec chmod 644 {} \;
     find ./craft -type d  -exec chmod 755 {} \;
+    find ./craft -type f  -exec chmod 644 {} \;
 
 This is to ensure the correct permissions on the downloaded and unzipped files
 

@@ -93,7 +93,7 @@ gulp.task('sass:watch', function() {
 gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
 	browserSync.init({
 		proxy: {
-			target: 'http://local.gulp-test.no:8888'
+			target: 'http://local.<%= appName %>.no:8888'
 		},
 		reqHeaders: function(config) {
 			return {

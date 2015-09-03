@@ -7,12 +7,12 @@
  * You can see a list of the default settings in craft/app/etc/config/defaults/db.php
  */
 
-define('DB_NAME', '<%= _.slugify(appName) %>');
+define('DB_NAME', '<%= appName %>');
 
 $dbConfig = array(
     '*' => array(
         'server' => 'localhost',
-        'user' => '<%= _.slugify(appName) %>',
+        'user' => '<%= appName %>',
         'password' => '',
         'database' => DB_NAME,
         'tablePrefix' => 'craft',

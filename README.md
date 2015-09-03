@@ -6,7 +6,7 @@
 ## Included
 
 - Craft
-- Grunt
+- Gulp
 - Browserify (with babel transform)
 - Zurb Foundation
 
@@ -33,15 +33,23 @@ This will:
     
 You develop in the src directory. Running 
 
-    grunt
+    gulp
 
 in the command line will run the development target, watch your files and move the results into the public directory, from where it will be served by Craft.
 
 Running
 
-    grunt release
+    gulp build
     
 will tarball the entire application (with Craft) so you can move it to the server where it is supposed to run, and untar it there.
+
+###Attention:
+Because of a bug in decompress-unzip (which yo uses) you have to run the following commands in the root of the project (for now)
+    
+    find ./craft -type f  -exec chmod 644 {} \;
+    find ./craft -type d  -exec chmod 755 {} \;
+
+This is to ensure the correct permissions on the downloaded and unzipped files
 
 ## License
 

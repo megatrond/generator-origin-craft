@@ -18,10 +18,11 @@ var pngquant = require('imagemin-pngquant');
 var CacheBuster = require('gulp-cachebust');
 var cachebust = new CacheBuster();
 
-
-// ######################################################
-// 			JAVASCRIPT BUILDING
-// ######################################################
+var del = require('del');
+var tar = require('gulp-tar');
+var gzip = require('gulp-gzip');
+var bump = require('gulp-bump');
+var svn = require('gulp-svn');
 
 // add custom browserify options here
 var customOpts = {
@@ -39,6 +40,7 @@ gulp.task('js', bundle); // so you can run `gulp js` to build the file
 b.on('update', bundle); // on any dep update, runs the bundler
 b.on('log', gutil.log); // output build logs to terminal
 
+// js bundling task
 function bundle() {
   return b.bundle()
     // log errors if they happen
@@ -54,16 +56,9 @@ function bundle() {
     .pipe(sourcemaps.write('./')) // writes .map file
     .pipe(gulp.dest('./public/static/js'))
     .pipe(browserSync.stream());
-}
+};
 
-// ######################################################
-// 			JAVASCRIPT BUILDING ENDED
-// ######################################################
-
-// ######################################################
-// 			SCSS/CSS BUILDING
-// ######################################################
-
+// build css from sass (development)
 gulp.task('sass', function() {
 	return gulp.src('./src/scss/styles.scss')
 		.pipe(sourcemaps.init())
@@ -76,20 +71,12 @@ gulp.task('sass', function() {
 		.pipe(gulp.dest('./public/static/css'))
 		.pipe(browserSync.stream());
 })
-
+// watch sass files (not used?)
 gulp.task('sass:watch', function() {
 	gulp.watch('./src/scss/**/*.scss', ['sass']);
 });
 
-// ######################################################
-// 			SCSS/CSS ENDED
-// ######################################################
-
-
-// ######################################################
-// 			BROWSERSYNC
-// ######################################################
-
+// browsersync 
 gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
 	browserSync.init({
 		proxy: {
@@ -108,32 +95,20 @@ gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
 	gulp.watch('./craft/templates/**/*.twig', ['twig']);
 });
 
-gulp.task('default', ['js', 'serve']);
-// ######################################################
-// 			BROWSERSYNC END
-// ######################################################
-
-// ######################################################
-// 			COPY STATIC FILES
-// ######################################################
-
+// copy static assets
 gulp.task('copy', function() {
 	gulp.src(['./src/fonts/**/*'])
 		.pipe(gulp.dest('./public/static/fonts'))
 		.pipe(browserSync.stream());
 });
 
-// ######################################################
-// 			COPY END
-// ######################################################
+// copy twig templates
 gulp.task('twig', function() {
 	gulp.src('./craft/templates/**/*.twig')
 		.pipe(browserSync.stream());
 });
-// ######################################################
-// 			MINIFY IMAGES
-// ######################################################
 
+// minify images
 gulp.task('imagemin', function() {
 	gulp.src('./src/img/**/*')
 		.pipe(imagemin({
@@ -143,8 +118,81 @@ gulp.task('imagemin', function() {
 		}))
 		.pipe(gulp.dest('./public/static/img'))
 		.pipe(browserSync.stream());
-})
+});
 
-// ######################################################
-// 			MINIFY IMAGES END
-// ######################################################
+// cleanup
+gulp.task('clean:release', function(cb) {
+    return del(['release/latest'], cb)
+});
+// copy files to prepare for relase
+gulp.task('copy:release', ['clean:release'], function() {
+    return gulp.src(['craft/**/*', 'public/*', '!public/uploads', '!public/static'], {base: '.', dot: true})
+        .pipe(gulp.dest('release/latest'));
+});
+// build javascript
+gulp.task('js:release', ['copy:release'], function() {
+    return browserify({entries: ['./src/js/main.js']})
+        .transform(babelify)
+        .bundle()
+        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+        .pipe(source('bundle.js'))
+        // optional, remove if you don't need to buffer file contents
+        .pipe(buffer())
+        .pipe(uglify())
+        .on('error', gutil.log)
+        .pipe(gulp.dest('./release/latest/public/static/js'));
+});
+// build styles
+gulp.task('scss:release', ['copy:release'], function() {
+    return gulp.src('./src/scss/styles.scss')
+        .pipe(sass({outputStyle: 'compressed'}))
+        .pipe(autoprefixer({
+            browsers: supportedBrowsers,
+            cascade: false
+        }))
+        .pipe(gulp.dest('./release/latest/public/static/css'));
+});
+// bump version number
+gulp.task('bump:release', function() {
+    return gulp.src('package.json')
+        .pipe(bump())
+        .pipe(gulp.dest('./'));
+});
+// tag the release
+gulp.task('svn:tag', ['compress:release', 'bump:release'], function() {
+    var version = require('./package.json').version;
+    return svn.tag('v'+version, 'Release '+version, function(err) {
+        if (err) {
+        	throw err;
+        }
+    });
+});
+// commit the updated package.json
+gulp.task('svn:commit', ['svn:tag'], function() {
+	return svn.commit('[gulp build system] Version bump', function(err) {
+		if (err) {
+			throw err;
+		}
+	})
+});
+// compress into tarball
+gulp.task('compress:release', ['clean:release', 'copy:release', 'js:release', 'scss:release'], function() {
+    var pkg = require('./package.json');
+    var version = pkg.version;
+    var appname = pkg.name;
+    return gulp.src('release/latest/**/*', {base: './release/latest'})
+        .pipe(tar(appname+'-'+version+'.tar'))
+        .pipe(gzip())
+        .pipe(gulp.dest('release'));
+});
+
+// default development task. Use 'gulp' to run
+gulp.task('default', ['js', 'serve']);
+
+// builds current working copy into a tarball. neither bumps version nor commits tag
+gulp.task('build', ['clean:release', 'copy:release', 'js:release', 'scss:release', 'compress:release']);
+
+// creates a release. Use 'gulp release' to run
+gulp.task('release', ['clean:release', 'copy:release', 'js:release', 'scss:release', 'compress:release', 'bump:release', 'svn:tag', 'svn:commit']);
+
+

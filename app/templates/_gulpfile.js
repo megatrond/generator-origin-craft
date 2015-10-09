@@ -17,12 +17,20 @@ var imagemin = require('gulp-imagemin');
 var pngquant = require('imagemin-pngquant');
 var CacheBuster = require('gulp-cachebust');
 var cachebust = new CacheBuster();
-
 var del = require('del');
 var tar = require('gulp-tar');
 var gzip = require('gulp-gzip');
 var bump = require('gulp-bump');
 var svn = require('gulp-svn');
+var rev = require('gulp-rev');
+var revReplace = require('gulp-rev-replace');
+var vinylPaths = require('vinyl-paths');
+
+// ######################################################
+//          JAVASCRIPT BUILDING
+// ######################################################
+
+var supportedBrowsers = ['last 2 versions', 'IE 9'];
 
 // add custom browserify options here
 var customOpts = {
@@ -40,7 +48,6 @@ gulp.task('js', bundle); // so you can run `gulp js` to build the file
 b.on('update', bundle); // on any dep update, runs the bundler
 b.on('log', gutil.log); // output build logs to terminal
 
-// js bundling task
 function bundle() {
   return b.bundle()
     // log errors if they happen
@@ -56,69 +63,99 @@ function bundle() {
     .pipe(sourcemaps.write('./')) // writes .map file
     .pipe(gulp.dest('./public/static/js'))
     .pipe(browserSync.stream());
-};
+}
 
-// build css from sass (development)
+// ######################################################
+//          JAVASCRIPT BUILDING ENDED
+// ######################################################
+
+// ######################################################
+//          SCSS/CSS BUILDING
+// ######################################################
+
 gulp.task('sass', function() {
-	return gulp.src('./src/scss/styles.scss')
-		.pipe(sourcemaps.init())
-		.pipe(sass({outputStyle: 'compressed'}))
-		.pipe(autoprefixer({
-			browsers: ['last 2 versions'],
-			cascade: false
-		}))
-		.pipe(sourcemaps.write())
-		.pipe(gulp.dest('./public/static/css'))
-		.pipe(browserSync.stream());
+    return gulp.src('./src/scss/styles.scss')
+        .pipe(sourcemaps.init())
+        .pipe(sass({outputStyle: 'compressed'}))
+        .pipe(autoprefixer({
+            browsers: supportedBrowsers,
+            cascade: false
+        }))
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('./public/static/css'))
+        .pipe(browserSync.stream());
 })
-// watch sass files (not used?)
+
 gulp.task('sass:watch', function() {
-	gulp.watch('./src/scss/**/*.scss', ['sass']);
+    gulp.watch('./src/scss/**/*.scss', ['sass']);
 });
 
-// browsersync 
+// ######################################################
+//          SCSS/CSS ENDED
+// ######################################################
+
+
+// ######################################################
+//          BROWSERSYNC
+// ######################################################
+
 gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
-	browserSync.init({
-		proxy: {
-			target: 'http://local.<%= appName %>.no:8888'
-		},
-		reqHeaders: function(config) {
-			return {
-				"host": config.urlObj.host
-			}
-		}
-		
-	});
-	gulp.watch('./src/scss/**/*.scss', ['sass']);
-	gulp.watch('./src/fonts/**/*', ['copy']);
-	gulp.watch('./src/img/**/*', ['imagemin']);
-	gulp.watch('./craft/templates/**/*.twig', ['twig']);
+    browserSync.init({
+        proxy: {
+            target: 'http://local.dkk-koebhund-craft.no:8888'
+        },
+        reqHeaders: function(config) {
+            return {
+                "host": config.urlObj.host
+            }
+        }
+        
+    });
+    gulp.watch('./src/scss/**/*.scss', ['sass']);
+    gulp.watch('./src/fonts/**/*', ['copy']);
+    gulp.watch('./src/img/**/*', ['imagemin']);
+    gulp.watch('./craft/templates/**/*.twig', ['twig']);
 });
 
-// copy static assets
+// ######################################################
+//          BROWSERSYNC END
+// ######################################################
+
+// ######################################################
+//          COPY STATIC FILES
+// ######################################################
+
 gulp.task('copy', function() {
-	gulp.src(['./src/fonts/**/*'])
-		.pipe(gulp.dest('./public/static/fonts'))
-		.pipe(browserSync.stream());
+    gulp.src(['./src/fonts/**/*'])
+        .pipe(gulp.dest('./public/static/fonts'))
+        .pipe(browserSync.stream());
 });
 
-// copy twig templates
+// ######################################################
+//          COPY END
+// ######################################################
 gulp.task('twig', function() {
-	gulp.src('./craft/templates/**/*.twig')
-		.pipe(browserSync.stream());
+    gulp.src('./craft/templates/**/*.twig')
+        .pipe(browserSync.stream());
+});
+// ######################################################
+//          MINIFY IMAGES
+// ######################################################
+
+gulp.task('imagemin', function() {
+    gulp.src('./src/img/**/*')
+        .pipe(imagemin({
+            progressive: true,
+            svgoPlugins: [{removeViewBox: false}],
+            use: [pngquant()]
+        }))
+        .pipe(gulp.dest('./public/static/img'))
+        .pipe(browserSync.stream());
 });
 
-// minify images
-gulp.task('imagemin', function() {
-	gulp.src('./src/img/**/*')
-		.pipe(imagemin({
-			progressive: true,
-			svgoPlugins: [{removeViewBox: false}],
-			use: [pngquant()]
-		}))
-		.pipe(gulp.dest('./public/static/img'))
-		.pipe(browserSync.stream());
-});
+// ######################################################
+//          MINIFY IMAGES END
+// ######################################################
 
 // cleanup
 gulp.task('clean:release', function(cb) {
@@ -152,31 +189,83 @@ gulp.task('scss:release', ['copy:release'], function() {
         }))
         .pipe(gulp.dest('./release/latest/public/static/css'));
 });
+// rev static files
+gulp.task('revision:release', ['js:release', 'scss:release'], function() {
+    var staticPath = 'release/latest/public/static/';
+    var files = [
+        staticPath + 'css/*.css',
+        staticPath + 'js/*.js'
+    ];
+    return gulp.src(files, {base: '.'})
+        .pipe(rev())
+        .pipe(gulp.dest('.'))
+        .pipe(rev.manifest())
+        .pipe(gulp.dest('.'));
+});
+gulp.task('clean:postbuild', ['revision:release'], function(cb) {
+    var staticPath = 'release/latest/public/static/';
+    var files = [
+        staticPath + 'css/styles.css',
+        staticPath + 'js/bundle.js'
+    ];
+    return del(files, cb);
+});
+gulp.task('revision:refchange', ['revision:release'], function() {
+    var manifest = gulp.src('./rev-manifest.json');
+    var commonPath = 'release/latest/craft/templates/common/';
+    function replacePrefixPath(filename) {
+        return filename.replace('release/latest/public/', '{{ siteUrl }}');
+    }
+    return gulp.src([commonPath + 'js.twig', commonPath + 'doc_head.twig'])
+        .pipe(revReplace({
+            manifest: manifest,
+            modifyUnreved: replacePrefixPath,
+            modifyReved: replacePrefixPath,
+            replaceInExtensions: ['.twig']
+        }))
+        .pipe(gulp.dest(commonPath));
+});
 // bump version number
 gulp.task('bump:release', function() {
     return gulp.src('package.json')
         .pipe(bump())
         .pipe(gulp.dest('./'));
 });
-// tag the release
-gulp.task('svn:tag', ['compress:release', 'bump:release'], function() {
+gulp.task('svn:tag', ['bump:release'], function() {
     var version = require('./package.json').version;
     return svn.tag('v'+version, 'Release '+version, function(err) {
-        if (err) {
-        	throw err;
-        }
+        if (err) throw err;
     });
 });
-// commit the updated package.json
-gulp.task('svn:commit', ['svn:tag'], function() {
-	return svn.commit('[gulp build system] Version bump', function(err) {
-		if (err) {
-			throw err;
-		}
-	})
-});
 // compress into tarball
-gulp.task('compress:release', ['clean:release', 'copy:release', 'js:release', 'scss:release'], function() {
+gulp.task('compress:build', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild'
+], function() {
+    var pkg = require('./package.json');
+    var version = pkg.version;
+    var appname = pkg.name;
+    return gulp.src('release/latest/**/*', {base: './release/latest'})
+        .pipe(tar(appname+'-'+version+'.tar'))
+        .pipe(gzip())
+        .pipe(gulp.dest('release'));
+});
+// compress into tarball, with added dependency on the 'bump:release' task
+gulp.task('compress:release', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild',
+    'bump:release'
+], function() {
     var pkg = require('./package.json');
     var version = pkg.version;
     var appname = pkg.name;
@@ -186,13 +275,28 @@ gulp.task('compress:release', ['clean:release', 'copy:release', 'js:release', 's
         .pipe(gulp.dest('release'));
 });
 
-// default development task. Use 'gulp' to run
 gulp.task('default', ['js', 'serve']);
 
-// builds current working copy into a tarball. neither bumps version nor commits tag
-gulp.task('build', ['clean:release', 'copy:release', 'js:release', 'scss:release', 'compress:release']);
+gulp.task('build', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild',
+    'compress:build'
+]);
 
-// creates a release. Use 'gulp release' to run
-gulp.task('release', ['clean:release', 'copy:release', 'js:release', 'scss:release', 'compress:release', 'bump:release', 'svn:tag', 'svn:commit']);
-
-
+gulp.task('release', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild',
+    'bump:release',
+    'svn:tag',
+    'compress:release'
+]);

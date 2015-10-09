@@ -43,11 +43,15 @@ Running
     
 will tarball the entire application (with Craft) so you can move it to the server where it is supposed to run, and untar it there.
 
+    gulp release
+
+Will do the exact same as `gulp build`, but will also bump the patch version number and create a svn tag
+
 ###Attention:
 Because of a bug in decompress-unzip (which yo uses) you have to run the following commands in the root of the project (for now)
     
-    find ./craft -type d  -exec chmod 755 {} \;
-    find ./craft -type f  -exec chmod 644 {} \;
+    sudo find ./craft -type d  -exec chmod 755 {} \;
+    sudo find ./craft -type f  -exec chmod 644 {} \;
 
 This is to ensure the correct permissions on the downloaded and unzipped files
 

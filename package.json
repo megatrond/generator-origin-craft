@@ -30,7 +30,7 @@
     "craftcms",
     "foundation",
     "generator",
-    "grunt",
+    "gulp",
     "yeoman",
     "yeoman-generator"
   ],

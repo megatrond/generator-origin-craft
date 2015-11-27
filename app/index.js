@@ -4,6 +4,9 @@ var path = require('path');
 var fs = require('fs');
 var generators = require('yeoman-generator');
 var yosay = require('yosay');
+var Download = require('download');
+
+var exec = require('child_process').exec;
 
 var craftUrl = 'http://buildwithcraft.com/latest.zip?accept_license=yes';
 
@@ -39,6 +42,9 @@ var OriginCraftGenerator = generators.Base.extend({
                 console.log(error);
             } else {
                 console.log('extracted');
+                console.log('changing permissions of extracted files')
+                exec('sudo find . -type d  -exec chmod 755 {} \;');
+                exec('sudo find . -type f  -exec chmod 644 {} \;');
                 done();
             }
         });
@@ -117,8 +123,7 @@ var OriginCraftGenerator = generators.Base.extend({
             this.fs.copy(this.templatePath('html/_404.twig'), this.destinationPath(templatePath+'/../404.twig'));
             this.fs.copy(this.templatePath('html/_index.twig'), this.destinationPath(templatePath+'/../index.twig'));
 
-            // copy configuration and grunt
-            this.fs.copy(this.templatePath('_bower.json'), this.destinationPath('bower.json'));
+            // copy gulpfile
             this.fs.copyTpl(this.templatePath('_gulpfile.js'), this.destinationPath('gulpfile.js'), context);
 
 

@@ -25,6 +25,7 @@ var svn = require('gulp-svn');
 var rev = require('gulp-rev');
 var revReplace = require('gulp-rev-replace');
 var vinylPaths = require('vinyl-paths');
+var watch = require('gulp-watch');
 
 // ######################################################
 //          JAVASCRIPT BUILDING
@@ -87,7 +88,9 @@ gulp.task('sass', function() {
 })
 
 gulp.task('sass:watch', function() {
-    gulp.watch('./src/scss/**/*.scss', ['sass']);
+    watch('./src/scss/**/*.scss', () => {
+        gulp.start('sass');
+    });
 });
 
 // ######################################################
@@ -102,7 +105,7 @@ gulp.task('sass:watch', function() {
 gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
     browserSync.init({
         proxy: {
-            target: 'http://local.dkk-koebhund-craft.no:8888'
+            target: 'http://local.<%= appName %>.no:8888'
         },
         reqHeaders: function(config) {
             return {
@@ -111,10 +114,18 @@ gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
         }
         
     });
-    gulp.watch('./src/scss/**/*.scss', ['sass']);
-    gulp.watch('./src/fonts/**/*', ['copy']);
-    gulp.watch('./src/img/**/*', ['imagemin']);
-    gulp.watch('./craft/templates/**/*.twig', ['twig']);
+    watch('./src/scss/**/*.scss', () => {
+        gulp.start('sass');
+    });
+    watch('./src/fonts/**/*', () => {
+        gulp.start('copy');
+    });
+    watch('./src/img/**/*', () => {
+        gulp.start('imagemin');
+    });
+    watch('./craft/templates/**/*.twig', () => {
+        gulp.start('twig');
+    });
 });
 
 // ######################################################

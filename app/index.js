@@ -42,9 +42,6 @@ var OriginCraftGenerator = generators.Base.extend({
                 console.log(error);
             } else {
                 console.log('extracted');
-                console.log('changing permissions of extracted files')
-                exec('sudo find . -type d  -exec chmod 755 {} \;');
-                exec('sudo find . -type f  -exec chmod 644 {} \;');
                 done();
             }
         });

@@ -133,6 +133,8 @@ var OriginCraftGenerator = generators.Base.extend({
         this.log('Remember to create a local database for the project.\nThe generated config files expects a database named \''+this.appName+'\', running on localhost\n');
         this.log('Craft expects you to have a virtualhost with \'local.\' in the name when developing.\n');
         this.log('Directory \'node_modules\' should be ignored in version control.\n')
+        this.log('\n');
+        this.log('Run the following two commands to fix permissions:\nsudo find . -type d  -exec chmod 755 {} \;\nsudo find . -type f  -exec chmod 644 {} \;')
     }
 });
 

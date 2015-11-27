@@ -1,6 +1,6 @@
 {
   "name": "generator-origin-craft",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Yeoman generator for CraftCMS, Gulp, Browserify, Zurb Foundation and Babel",
   "license": "MIT",
   "main": "app/index.js",

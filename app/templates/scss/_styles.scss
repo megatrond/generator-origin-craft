@@ -1,10 +1,7 @@
+@import "../../node_modules/foundation-sites/scss/foundation";
 
-@import "../../bower_components/foundation/scss/normalize";
+@include foundation-global-styles;
 
-@import "../../bower_components/foundation/scss/foundation/functions";
+@include foundation-grid;
 
-@import "../../bower_components/foundation/scss/foundation/components/global";
-
-@import "../../bower_components/foundation/scss/foundation/components/grid";
-
-@import "../../bower_components/foundation/scss/foundation/components/type";
+@include foundation-typography;

@@ -51,7 +51,6 @@ Will do the exact same as `gulp build`, but will also bump the patch version num
 
 Because of a bug in decompress-unzip (which yo uses) you have to run the following commands in the root of the project (for now)
     
-    sudo find . -type d  -exec chmod 755 {} \;
     sudo find . -type f  -exec chmod 644 {} \;
 
 This is to ensure the correct permissions on the downloaded and unzipped files

@@ -9,6 +9,7 @@ var gutil = require('gulp-util');
 var sourcemaps = require('gulp-sourcemaps');
 var assign = require('lodash.assign');
 var babelify = require('babelify');
+var envify = require('envify');
 var uglify = require('gulp-uglify');
 var sass = require('gulp-sass');
 var autoprefixer = require('gulp-autoprefixer');
@@ -44,6 +45,7 @@ var b = watchify(browserify(opts));
 // add transformations here
 // i.e. b.transform(coffeeify);
 b.transform(babelify);
+b.transform(envify);
 
 gulp.task('js', bundle); // so you can run `gulp js` to build the file
 b.on('update', bundle); // on any dep update, runs the bundler
@@ -57,11 +59,11 @@ function bundle() {
     // optional, remove if you don't need to buffer file contents
     .pipe(buffer())
     // optional, remove if you dont want sourcemaps
-    .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
+    //.pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
        // Add transformation tasks to the pipeline here.
        .pipe(uglify())
        .on('error', gutil.log)
-    .pipe(sourcemaps.write('./')) // writes .map file
+    //.pipe(sourcemaps.write('./')) // writes .map file
     .pipe(gulp.dest('./public/static/js'))
     .pipe(browserSync.stream());
 }
@@ -237,15 +239,22 @@ gulp.task('revision:refchange', ['revision:release'], function() {
         .pipe(gulp.dest(commonPath));
 });
 // bump version number
-gulp.task('bump:release', function() {
+gulp.task('bump:release', ['svn:tag', 'compress:release'], function() {
     return gulp.src('package.json')
         .pipe(bump())
         .pipe(gulp.dest('./'));
 });
-gulp.task('svn:tag', ['bump:release'], function() {
+gulp.task('svn:tag', function() {
     var version = require('./package.json').version;
     return svn.tag('v'+version, 'Release '+version, function(err) {
         if (err) throw err;
+    });
+});
+gulp.task('svn:commit', ['bump:release'], function() {
+    return svn.commit('Prepare for next release', function(err) {
+        if (err) {
+            throw err;
+        }
     });
 });
 // compress into tarball
@@ -275,7 +284,7 @@ gulp.task('compress:release', [
     'revision:release',
     'revision:refchange',
     'clean:postbuild',
-    'bump:release'
+    'svn:tag'
 ], function() {
     var pkg = require('./package.json');
     var version = pkg.version;
@@ -309,5 +318,6 @@ gulp.task('release', [
     'clean:postbuild',
     'bump:release',
     'svn:tag',
+    'svn:commit',
     'compress:release'
 ]);

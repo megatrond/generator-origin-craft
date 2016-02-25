@@ -2,6 +2,7 @@
 var util = require('util');
 var path = require('path');
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 var generators = require('yeoman-generator');
 var yosay = require('yosay');
 var Download = require('download');
@@ -17,27 +18,20 @@ var OriginCraftGenerator = generators.Base.extend({
 
     prompting: function () {
         var done = this.async();
-
+	var pathSegments = this.destinationRoot().split('/');
+	var projectName = pathSegments[pathSegments.length - 1].replace(' ', '_').replace('-', '_');
+	console.log(projectName);
         // Have Yeoman greet the user.
         this.log(yosay(
-            'Welcome to the terrific OriginCraft generator!'
+            'Welcome to the terrific Origin Craft generator!'
             ));
-
-        var prompts = [{
-            name: 'appName',
-            message: 'What is the name of the Craft app?'
-        }];
-
-        this.prompt(prompts, function (props) {
-            this.appName = props.appName;
-
-            done();
-        }.bind(this));
+	this.appName = projectName;
+	done();
     },
     downloadCraft: function() {
         var done = this.async();
         // download and extract Craft (URL and version specified above)
-        this.extract(craftUrl, '.', function(error) {
+        this.extract(craftUrl, '.', {mode: '755'}, function(error) {
             if (error) {
                 console.log(error);
             } else {
@@ -94,8 +88,8 @@ var OriginCraftGenerator = generators.Base.extend({
         app: function () {
             // this.fs.mkdir(this.destinationPath('src'));
             // this.fs.mkdir(this.destinationPath('src/scss'));
-            // this.fs.mkdir(this.destinationPath('src/fonts'));
-            // this.fs.mkdir(this.destinationPath('src/img'));
+            mkdirp(this.destinationPath('src/fonts'));
+            mkdirp(this.destinationPath('src/img'));
             // this.fs.mkdir(this.destinationPath('src/js'));
 
             var context = {
@@ -123,6 +117,9 @@ var OriginCraftGenerator = generators.Base.extend({
             // copy gulpfile
             this.fs.copyTpl(this.templatePath('_gulpfile.js'), this.destinationPath('gulpfile.js'), context);
 
+            // copy babelrc file
+            this.fs.copyTpl(this.templatePath('babelrc'), this.destinationPath('.babelrc'), context);
+
 
         }
     },
@@ -134,7 +131,7 @@ var OriginCraftGenerator = generators.Base.extend({
         this.log('Craft expects you to have a virtualhost with \'local.\' in the name when developing.\n');
         this.log('Directory \'node_modules\' should be ignored in version control.\n')
         this.log('\n');
-        this.log('Run the following two commands to fix permissions:\nsudo find . -type d  -exec chmod 755 {} \;\nsudo find . -type f  -exec chmod 644 {} \;')
+        this.log('Run the following two commands to fix permissions:\nsudo find . -type d  -exec chmod 755 {} \\;\nsudo find . -type f  -exec chmod 644 {} \\;')
     }
 });
 

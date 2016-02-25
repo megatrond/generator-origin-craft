@@ -37,9 +37,10 @@
   "dependencies": {
     "chalk": "^1.1.1",
     "download": "^4.4.3",
-    "yeoman-generator": "^0.20.3",
-    "yo": "^1.4.8",
-    "yosay": "^1.0.5"
+    "mkdirp": "^0.5.1",
+    "yeoman-generator": "^0.22.5",
+    "yo": "^1.6.0",
+    "yosay": "^1.1.0"
   },
   "devDependencies": {
     "mocha": "*"

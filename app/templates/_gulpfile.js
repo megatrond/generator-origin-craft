@@ -176,7 +176,7 @@ gulp.task('clean:release', function(cb) {
 });
 // copy files to prepare for relase
 gulp.task('copy:release', ['clean:release'], function() {
-    return gulp.src(['craft/**/*', 'public/*', '!public/uploads', '!public/static'], {base: '.', dot: true})
+    return gulp.src(['craft/**/*', 'public/*', '!public/uploads', '!public/static', 'public/static/fonts/**/*', 'public/static/img/**/*'], {base: '.', dot: true})
         .pipe(gulp.dest('release/latest'));
 });
 // build javascript

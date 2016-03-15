@@ -102,10 +102,10 @@ var OriginCraftGenerator = generators.Base.extend({
             this.fs.copy(this.templatePath('js/_main.js'), this.destinationPath('src/js/main.js'));
 
             var templatePath = 'craft/templates/common';
-            // this.dest.mkdir('craft/templates');
-            // this.dest.mkdir(templatePath);
-            // this.dest.mkdir('craft/storage');
-            // this.dest.mkdir('craft/plugins');
+            mkdirp(this.destinationPath(templatePath));
+            mkdirp(this.destinationPath('craft/storage'));
+            mkdirp(this.destinationPath('craft/plugins'));
+	    
             this.fs.copy(this.templatePath('html/_doc_head.twig'), this.destinationPath(templatePath+'/doc_head.twig'));
             this.fs.copy(this.templatePath('html/_js.twig'), this.destinationPath(templatePath+'/js.twig'));
             this.fs.copy(this.templatePath('html/_page_footer.twig'), this.destinationPath(templatePath+'/page_footer.twig'));
@@ -113,7 +113,7 @@ var OriginCraftGenerator = generators.Base.extend({
             this.fs.copy(this.templatePath('html/_layout.twig'), this.destinationPath(templatePath+'/../_layout.twig'));
             this.fs.copy(this.templatePath('html/_404.twig'), this.destinationPath(templatePath+'/../404.twig'));
             this.fs.copy(this.templatePath('html/_index.twig'), this.destinationPath(templatePath+'/../index.twig'));
-
+	    this.fs.copy(this.templatePath('html/_styles.twig'), this.destinationPath(templatePath´+'/styles.twig'));
             // copy gulpfile
             this.fs.copyTpl(this.templatePath('_gulpfile.js'), this.destinationPath('gulpfile.js'), context);
 
@@ -131,7 +131,7 @@ var OriginCraftGenerator = generators.Base.extend({
         this.log('Craft expects you to have a virtualhost with \'local.\' in the name when developing.\n');
         this.log('Directory \'node_modules\' should be ignored in version control.\n')
         this.log('\n');
-        this.log('Run the following two commands to fix permissions:\nsudo find . -type f  -exec chmod 644 {} \\;')
+        this.log('Run the following command to fix permissions:\nsudo find . -type f  -exec chmod 644 {} \\;')
     }
 });
 

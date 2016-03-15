@@ -25,7 +25,6 @@ var bump = require('gulp-bump');
 var svn = require('gulp-svn');
 var rev = require('gulp-rev');
 var revReplace = require('gulp-rev-replace');
-var vinylPaths = require('vinyl-paths');
 var watch = require('gulp-watch');
 
 // ######################################################
@@ -40,7 +39,9 @@ var customOpts = {
   debug: true
 };
 var opts = assign({}, watchify.args, customOpts);
-var b = watchify(browserify(opts)); 
+
+watchify.args.debug = true;
+var b = watchify(browserify(opts), watchify.args);
 
 // add transformations here
 // i.e. b.transform(coffeeify);
@@ -52,6 +53,7 @@ b.on('update', bundle); // on any dep update, runs the bundler
 b.on('log', gutil.log); // output build logs to terminal
 
 function bundle() {
+    process.env.NODE_ENV = 'development';
   return b.bundle()
     // log errors if they happen
     .on('error', gutil.log.bind(gutil, 'Browserify Error'))
@@ -61,12 +63,13 @@ function bundle() {
     // optional, remove if you dont want sourcemaps
     //.pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
        // Add transformation tasks to the pipeline here.
-       .pipe(uglify())
        .on('error', gutil.log)
     //.pipe(sourcemaps.write('./')) // writes .map file
     .pipe(gulp.dest('./public/static/js'))
     .pipe(browserSync.stream());
 }
+
+
 
 // ######################################################
 //          JAVASCRIPT BUILDING ENDED
@@ -79,7 +82,9 @@ function bundle() {
 gulp.task('sass', function() {
     return gulp.src('./src/scss/styles.scss')
         .pipe(sourcemaps.init())
-        .pipe(sass({outputStyle: 'compressed'}))
+        .pipe(sass({
+            outputStyle: 'compressed'
+        }).on('error', sass.logError))
         .pipe(autoprefixer({
             browsers: supportedBrowsers,
             cascade: false
@@ -87,7 +92,7 @@ gulp.task('sass', function() {
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('./public/static/css'))
         .pipe(browserSync.stream());
-})
+});
 
 gulp.task('sass:watch', function() {
     watch('./src/scss/**/*.scss', () => {
@@ -109,6 +114,7 @@ gulp.task('serve', ['sass', 'copy', 'imagemin'], function() {
         proxy: {
             target: 'http://local.<%= appName %>.no:8888'
         },
+        open: false,
         reqHeaders: function(config) {
             return {
                 "host": config.urlObj.host
@@ -156,7 +162,7 @@ gulp.task('twig', function() {
 // ######################################################
 
 gulp.task('imagemin', function() {
-    gulp.src('./src/img/**/*')
+    return gulp.src('./src/img/**/*', {base: './src/img/'})
         .pipe(imagemin({
             progressive: true,
             svgoPlugins: [{removeViewBox: false}],
@@ -164,6 +170,16 @@ gulp.task('imagemin', function() {
         }))
         .pipe(gulp.dest('./public/static/img'))
         .pipe(browserSync.stream());
+});
+
+gulp.task('imagemin:release', ['clean:release'], function() {
+    return gulp.src('./src/img/**/*', {base: './src/img/'})
+        .pipe(imagemin({
+            progressive: true,
+            svgoPlugins: [{removeViewBox: false}],
+            use: [pngquant()]
+        }))
+        .pipe(gulp.dest('release/latest/public/static/img'));
 });
 
 // ######################################################
@@ -181,9 +197,12 @@ gulp.task('copy:release', ['clean:release'], function() {
 });
 // build javascript
 gulp.task('js:release', ['copy:release'], function() {
-    return browserify({entries: ['./src/js/main.js']})
-        .transform(babelify)
-        .bundle()
+    // set env var NODE_ENV to trigger dead code removal and delicious perf
+    process.env.NODE_ENV = 'production';
+    var b = browserify({entries: ['./src/js/main.js']});
+    b.transform(babelify);
+    b.transform(envify);
+    return b.bundle()
         .on('error', gutil.log.bind(gutil, 'Browserify Error'))
         .pipe(source('bundle.js'))
         // optional, remove if you don't need to buffer file contents
@@ -217,9 +236,11 @@ gulp.task('revision:release', ['js:release', 'scss:release'], function() {
 });
 gulp.task('clean:postbuild', ['revision:release'], function(cb) {
     var staticPath = 'release/latest/public/static/';
+    var runtimePath = 'release/latest/craft/storage/runtime/**';
     var files = [
         staticPath + 'css/styles.css',
-        staticPath + 'js/bundle.js'
+        staticPath + 'js/bundle.js',
+        runtimePath
     ];
     return del(files, cb);
 });
@@ -229,7 +250,7 @@ gulp.task('revision:refchange', ['revision:release'], function() {
     function replacePrefixPath(filename) {
         return filename.replace('release/latest/public/', '{{ siteUrl }}');
     }
-    return gulp.src([commonPath + 'js.twig', commonPath + 'doc_head.twig'])
+    return gulp.src([commonPath + 'js.twig', commonPath + 'styles.twig'])
         .pipe(revReplace({
             manifest: manifest,
             modifyUnreved: replacePrefixPath,
@@ -260,6 +281,7 @@ gulp.task('svn:commit', ['bump:release'], function() {
 // compress into tarball
 gulp.task('compress:build', [
     'clean:release',
+    'imagemin:release',
     'copy:release',
     'js:release',
     'scss:release',
@@ -278,6 +300,7 @@ gulp.task('compress:build', [
 // compress into tarball, with added dependency on the 'bump:release' task
 gulp.task('compress:release', [
     'clean:release',
+    'imagemin:release',
     'copy:release',
     'js:release',
     'scss:release',

@@ -26,6 +26,7 @@ var svn = require('gulp-svn');
 var rev = require('gulp-rev');
 var revReplace = require('gulp-rev-replace');
 var watch = require('gulp-watch');
+var fs = require('fs');
 
 // ######################################################
 //          JAVASCRIPT BUILDING
@@ -259,20 +260,31 @@ gulp.task('revision:refchange', ['revision:release'], function() {
         }))
         .pipe(gulp.dest(commonPath));
 });
-// bump version number
-gulp.task('bump:release', ['svn:tag', 'compress:release'], function() {
+
+
+const bumper = (type) => {
     return gulp.src('package.json')
-        .pipe(bump())
+        .pipe(bump({type: type}))
         .pipe(gulp.dest('./'));
-});
-gulp.task('svn:tag', function() {
-    var version = require('./package.json').version;
-    return svn.tag('v'+version, 'Release '+version, function(err) {
-        if (err) throw err;
+};
+const tagger = function(type) {
+    const done = bumper.call(this, type);
+    done.on('end', function() {
+        var version = JSON.parse(fs.readFileSync('./package.json')).version;
+        return svn.tag('v'+version, 'Release '+version, function(err) {
+            if (err) throw err;
+        });
     });
-});
-gulp.task('svn:commit', ['bump:release'], function() {
-    return svn.commit('Prepare for next release', function(err) {
+};
+
+gulp.task('svn:tag', () => tagger('patch'));
+gulp.task('svn:tag:patch', () => tagger('patch'));
+gulp.task('svn:tag:minor', () => tagger('minor'));
+gulp.task('svn:tag:major', () => tagger('major'));
+
+gulp.task('svn:commit', ['compress:release'], function() {
+    var version = JSON.parse(fs.readFileSync('./package.json')).version;
+    return svn.commit('Release version ' + version, function(err) {
         if (err) {
             throw err;
         }
@@ -306,8 +318,7 @@ gulp.task('compress:release', [
     'scss:release',
     'revision:release',
     'revision:refchange',
-    'clean:postbuild',
-    'svn:tag'
+    'clean:postbuild'
 ], function() {
     var pkg = require('./package.json');
     var version = pkg.version;
@@ -339,8 +350,46 @@ gulp.task('release', [
     'revision:release',
     'revision:refchange',
     'clean:postbuild',
-    'bump:release',
     'svn:tag',
+    'svn:commit',
+    'compress:release'
+]);
+
+gulp.task('release:patch', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild',
+    'svn:tag',
+    'svn:commit',
+    'compress:release'
+]);
+
+gulp.task('release:minor', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild',
+    'svn:tag:minor',
+    'svn:commit',
+    'compress:release'
+]);
+
+gulp.task('release:major', [
+    'clean:release',
+    'copy:release',
+    'js:release',
+    'scss:release',
+    'revision:release',
+    'revision:refchange',
+    'clean:postbuild',
+    'svn:tag:major',
     'svn:commit',
     'compress:release'
 ]);

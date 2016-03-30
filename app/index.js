@@ -113,7 +113,7 @@ var OriginCraftGenerator = generators.Base.extend({
             this.fs.copy(this.templatePath('html/_layout.twig'), this.destinationPath(templatePath+'/../_layout.twig'));
             this.fs.copy(this.templatePath('html/_404.twig'), this.destinationPath(templatePath+'/../404.twig'));
             this.fs.copy(this.templatePath('html/_index.twig'), this.destinationPath(templatePath+'/../index.twig'));
-	    this.fs.copy(this.templatePath('html/_styles.twig'), this.destinationPath(templatePath´+'/styles.twig'));
+	    this.fs.copy(this.templatePath('html/_styles.twig'), this.destinationPath(templatePath+'/styles.twig'));
             // copy gulpfile
             this.fs.copyTpl(this.templatePath('_gulpfile.js'), this.destinationPath('gulpfile.js'), context);
 

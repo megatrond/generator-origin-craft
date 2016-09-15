@@ -86,6 +86,7 @@ var OriginCraftGenerator = generators.Base.extend({
     },
     writing: {
         app: function () {
+            var self = this;
             // this.fs.mkdir(this.destinationPath('src'));
             // this.fs.mkdir(this.destinationPath('src/scss'));
             mkdirp(this.destinationPath('src/fonts'));
@@ -120,18 +121,24 @@ var OriginCraftGenerator = generators.Base.extend({
             // copy babelrc file
             this.fs.copyTpl(this.templatePath('babelrc'), this.destinationPath('.babelrc'), context);
 
+            // rename htaccess to .htaccess
+            this.fs.copy(this.destinationPath('public/htaccess'), this.destinationPath('public/.htaccess'));
 
+            fs.unlink(this.destinationPath('public/htaccess'), function(err) {
+                if (err) {
+                    self.log('Could not delete htaccess file, do it yourself');
+                }
+            });
         }
     },
-    installdeps: function() {
-        this.installDependencies();
-    },
     end: function () {
+        this.log('\n');
+        this.log('Congratulations! You have now installed Craft and some build tools. Here are a few tips:\n');
         this.log('Remember to create a local database for the project.\nThe generated config files expects a database named \''+this.appName+'\', running on localhost\n');
-        this.log('Craft expects you to have a virtualhost with \'local.\' in the name when developing.\n');
+        this.log('Craft expects you to have a virtualhost with \'local.\' in the hostname when developing.\n');
+        this.log('npm dependencies have not been installed, remember to run \'npm install\'\n);
         this.log('Directory \'node_modules\' should be ignored in version control.\n')
         this.log('\n');
-        this.log('Run the following command to fix permissions:\nsudo find . -type f  -exec chmod 644 {} \\;')
     }
 });
 

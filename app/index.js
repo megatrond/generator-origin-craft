@@ -19,11 +19,11 @@ var OriginCraftGenerator = generators.Base.extend({
     prompting: function () {
         var done = this.async();
 	var pathSegments = this.destinationRoot().split('/');
-	var projectName = pathSegments[pathSegments.length - 1].replace(' ', '_').replace('-', '_');
-	console.log(projectName);
+	var projectName = pathSegments[pathSegments.length - 1].replace(/[^a-z\d\s]/g, '-').toLowerCase();
+	
         // Have Yeoman greet the user.
         this.log(yosay(
-            'Welcome to the terrific Origin Craft generator!'
+            'Scaffolding Craft project \''+projectName+'\''
             ));
 	this.appName = projectName;
 	done();
@@ -41,10 +41,25 @@ var OriginCraftGenerator = generators.Base.extend({
         });
     },
     setCraftConfig: function() {
+        var generatePassword = function() {
+            var pw = [];
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+            while (pw.length < 21) {
+                pw.push(chars.charAt(Math.floor(Math.random() * chars.length)));
+            }
+
+            return pw.join('');
+        };
         var done = this.async();
         var configPath = 'craft/config';
+        this.dbName = this.appName.replace(/[^a-z\d\s]/g, '_');
         var context = {
-            appName: this.appName
+            appName: this.appName,
+            dbName: this.dbName,
+            dbUsername: this.dbName.substring(0, 16),
+            dbPasswordStaging: generatePassword(),
+            dbPasswordProduction: generatePassword()
         };
         var self = this;
 
@@ -134,7 +149,7 @@ var OriginCraftGenerator = generators.Base.extend({
     end: function () {
         this.log('\n');
         this.log('Congratulations! You have now installed Craft and some build tools. Here are a few tips:\n');
-        this.log('Remember to create a local database for the project.\nThe generated config files expects a database named \''+this.appName+'\', running on localhost\n');
+        this.log('Remember to create a local database for the project.\nThe generated config files expects a database named \''+this.dbName+'\', running on localhost\n');
         this.log('Craft expects you to have a virtualhost with \'local.\' in the hostname when developing.\n');
         this.log('npm dependencies have not been installed, remember to run \'npm install\'\n');
         this.log('Directory \'node_modules\' should be ignored in version control.\n')

@@ -19,14 +19,16 @@ var OriginCraftGenerator = generators.Base.extend({
     prompting: function () {
         var done = this.async();
 	var pathSegments = this.destinationRoot().split('/');
-	var projectName = pathSegments[pathSegments.length - 1].replace(/[^a-z\d\s]/g, '-').toLowerCase();
+	this.appName = pathSegments[pathSegments.length - 1].replace(/[^a-z\d\s]/g, '-').toLowerCase();
 	
-        // Have Yeoman greet the user.
-        this.log(yosay(
-            'Scaffolding Craft project \''+projectName+'\''
-            ));
-	this.appName = projectName;
-	done();
+    // Have Yeoman greet the user.
+    this.log('\nScaffolding Craft project \''+this.appName+'\'\n');
+
+    // only allow lowercase chars, numbers, and underscores in database name
+    this.dbName = this.appName.replace(/[^a-z\d\s]/g, '_');
+	
+    done();
+    
     },
     downloadCraft: function() {
         var done = this.async();

@@ -14,9 +14,13 @@
 ##Usage
 
 To get all the goodness:
+    
+    npm install generator-origin-craft 
 
     mkdir your-project-name && cd your-project-name
     yo origin-craft
+    
+    npm install
 
 **NOTE: Craft is subject to licensing. This generator assumes you have read the terms of the Craft License Agreement, which are available [here](http://buildwithcraft.com/license)**
 
